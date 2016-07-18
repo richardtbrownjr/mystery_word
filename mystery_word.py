@@ -58,53 +58,20 @@ def get_bad_guesses_count(hangman_word, guesses):
     return count
 
 def has_more_guesses(hangman_word, guesses):
-    return get_bad_guesses_count(hangman_word, guesses) < 8
+    return get_bad_guesses_count(hangman_word, guesses) < 3
 
-def checking_if_letter_is_correct(hangman_word, word_character_length):
-    guesses = []
-
-    while has_more_guesses(hangman_word, guesses):
-        print('')
-        try:
-            guess_letter = str(input("\nGuess one letter in the hangman secret word ")).lower()
-        except:
-            print("That is not valid input. Please try again.")
-            continue
-        else:
-            if not guess_letter.isalpha():
-                print("That's not a letter. Please try again.")
-                continue
-            elif len(guess_letter) > 1:
-                print("That's more than one letter. Please try again.")
-                continue
-            elif guess_letter in guesses:
-                print("You have already guessed that letter. Please try again.")
-                continue
-            else:
-                pass
-
-        guesses.append(guess_letter)
-        count = get_bad_guesses_count(hangman_word, guesses)
-        draw(hangman_word, word_character_length, guesses)
-        a_win(hangman_word, guesses, count)
-
-def no_go(hangman_word):
-    print("Sorry no go.  The secret word was {}".format(hangman_word))
-    print('Thanks for trying.  See you soon!')
-    play_again
-
-def a_win(hangman_word, guesses, count):
-    print('')
-    tempg =len(guesses)
-    temphang = len(hangman_word)
-    temphangstr = ' '.join(hangman_word)
-    #print(' temp length of guesses ', tempg)
-    #print('temp length of hangman word ', temphang)
-    if count >= 4:  #tempg >= temphang and
-        for guesses in hangman_word:
-            for temphangstr in guesses:
-                print('you win')
-                play_again()
+def is_valid_letter(guess_letter, guesses):
+    if not guess_letter.isalpha():
+        print("That's not a letter. Please try again.")
+        return False
+    elif len(guess_letter) > 1:
+        print("That's more than one letter. Please try again.")
+        return False
+    elif guess_letter in guesses:
+        print("You have already guessed that letter. Please try again.")
+        return False
+    else:
+        return True
 
 def play_again():
     play_again = input(' Do you want to try again (Y)es or (N): ').lower()
@@ -158,7 +125,10 @@ def is_word_complete(hangman_word, guesses):
     for i in hangman_word:
         if i not in guesses:
             return False
-    return word
+    return True
+
+def is_game_over(hangman_word, guesses):
+    return not has_more_guesses(hangman_word, guesses) or is_word_complete(hangman_word, guesses)
 
 def main():
     os.system('clear')
@@ -169,13 +139,34 @@ def main():
 
     hangman_word = random_word(words).lower()
     print(hangman_word, 'Tis the word')
-    word_character_length=len(hangman_word)
+    word_character_length = len(hangman_word)
     print("This secret word is {} characters long. Good luck".format(word_character_length))
     print('')
     print('')
-    print('__ '*word_character_length)
+    print('__ ' * word_character_length)
 
-    checking_if_letter_is_correct(hangman_word, word_character_length)
+    guesses = []
+
+    while not is_game_over(hangman_word, guesses):
+        print('')
+        try:
+            guess_letter = str(input("\nGuess one letter in the hangman secret word ")).lower()
+        except ValueError:
+            print("That is not valid input. Please try again.")
+            continue
+
+        if is_valid_letter(guess_letter, guesses):
+            guesses.append(guess_letter)
+
+        draw(hangman_word, word_character_length, guesses)
+
+    if is_word_complete(hangman_word, guesses):
+        print("You win!")
+    else:
+        print("Sorry no go.  The secret word was {}".format(hangman_word))
+        print('Thanks for trying.  See you soon!')
+
+    play_again()
 
 if __name__ == '__main__':
     main()
