@@ -30,12 +30,13 @@ def word_choice_from_dict(level_of_word):
 
 def draw(hangman_word, word_character_length, guesses):
     spacing_the_guess = []
+    count = 0
     os.system('clear')
     print("                       Play Hangman  ")
     print('***********************************************')
     print('  Do you want (E)asy (N)ormal or (H)ard mode: ')
     print('')
-    print(hangman_word, 'Tis the word')
+    #print(hangman_word, 'Tis the word')
     holder_hangman_word = list(hangman_word)
     for i, letter in enumerate(holder_hangman_word):
         spacing_the_guess.append('__  ')
@@ -49,10 +50,15 @@ def get_bad_guesses_count(hangman_word, guesses):
     for guess in guesses:
         if guess not in hangman_word:
             count += 1
+        if count >= 8:
+            no_go(hangman_word)
+    if count >=1:
+        print('')
+        print('You have {} guesses left.'.format(8 - count))
     return count
 
 def has_more_guesses(hangman_word, guesses):
-    return get_bad_guesses_count(hangman_word, guesses) < 2
+    return get_bad_guesses_count(hangman_word, guesses) < 8
 
 def checking_if_letter_is_correct(hangman_word, word_character_length):
     guesses = []
@@ -78,21 +84,35 @@ def checking_if_letter_is_correct(hangman_word, word_character_length):
                 pass
 
         guesses.append(guess_letter)
-        draw(hangman_word, word_character_length, guesses)
         count = get_bad_guesses_count(hangman_word, guesses)
-        print('test 2')
-        if count >=1:
-            print('')
-            print('You have {} guesses left.'.format(8 - count))
-            #print('Wow you have won!')
-            
-            print('wow')
+        draw(hangman_word, word_character_length, guesses)
+        a_win(hangman_word, guesses, count)
+
+def no_go(hangman_word):
+    print("Sorry no go.  The secret word was {}".format(hangman_word))
+    print('Thanks for trying.  See you soon!')
+    play_again
+
+def a_win(hangman_word, guesses, count):
+    print('')
+    tempg =len(guesses)
+    temphang = len(hangman_word)
+    temphangstr = ' '.join(hangman_word)
+    #print(' temp length of guesses ', tempg)
+    #print('temp length of hangman word ', temphang)
+    if count >= 4:  #tempg >= temphang and
+        for guesses in hangman_word:
+            for temphangstr in guesses:
+                print('you win')
+                play_again()
+
 def play_again():
     play_again = input(' Do you want to try again (Y)es or (N): ').lower()
     if play_again == 'y':
         main()
     else:
         print('Thanks for trying.  See you soon!')
+        exit()
 
 def easy_words(word_list):
     words = []
@@ -147,7 +167,7 @@ def main():
     word_length = input(' Do you want (E)asy (N)ormal or (H)ard mode: ').lower()
     words = check_word_length(word_length)
 
-    hangman_word = random_word(words)
+    hangman_word = random_word(words).lower()
     print(hangman_word, 'Tis the word')
     word_character_length=len(hangman_word)
     print("This secret word is {} characters long. Good luck".format(word_character_length))
@@ -156,10 +176,6 @@ def main():
     print('__ '*word_character_length)
 
     checking_if_letter_is_correct(hangman_word, word_character_length)
-
-    #is_word_complete(hangman_word, guesses)
-
-    play_again()
 
 if __name__ == '__main__':
     main()
